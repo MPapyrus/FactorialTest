@@ -34,25 +34,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.progress.observe(this) {
-            if (it) {
+
+        viewModel.state.observe(this) {
+            if (it.isError) {
+                Toast.makeText(this, "You did not entered the value", Toast.LENGTH_SHORT).show()
+            }
+
+            if (it.isInProgress) {
                 binding.progressBarLoading.visibility = View.VISIBLE
                 binding.buttonCalculate.isEnabled = false
             } else {
                 binding.progressBarLoading.visibility = View.GONE
                 binding.buttonCalculate.isEnabled = true
             }
+
+            binding.textViewFactorial.text = it.factorial
         }
 
-        viewModel.error.observe(this) {
-            if (it == true) {
-                Toast.makeText(this, "You did not entered the value", Toast.LENGTH_SHORT).show()
-                viewModel.resetError()
-            }
-        }
-
-        viewModel.factorial.observe(this) {
-            binding.textViewFactorial.text = it
-        }
     }
 }

@@ -7,6 +7,7 @@ android {
     namespace = "com.example.factorialtest"
     compileSdk = 35
 
+
     defaultConfig {
         applicationId = "com.example.factorialtest"
         minSdk = 24
@@ -26,6 +27,11 @@ android {
             )
         }
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -36,6 +42,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

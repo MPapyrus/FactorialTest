@@ -5,7 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -14,6 +17,8 @@ import kotlin.concurrent.thread
 import kotlin.coroutines.suspendCoroutine
 
 class MainViewModel : ViewModel() {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + CoroutineName("My coroutine scope"))
 
     private val _state = MutableLiveData<State>()
     val state: LiveData<State>
@@ -27,28 +32,32 @@ class MainViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch {
+        coroutineScope.launch {
             val number = value.toLong()
-            val result = factorial(number)
-            _state.value = Factorial(result)
-        }
-    }
-
-    private suspend fun factorial(number: Long): String {
-        return withContext(Dispatchers.Default) {
-            var result = BigInteger.ONE
-
-            for (i in 1..number) {
-                result = result.multiply(BigInteger.valueOf(i))
+            val result = withContext(Dispatchers.Default) {
+                factorial(number)
             }
-            result.toString()
+            _state.value = Factorial(result)
+            Log.d("MainViewModel", coroutineContext.toString())
         }
 
     }
-}
 
-//    private suspend fun factorial(number: Long): String {
-//
+    private fun factorial(number: Long): String {
+        var result = BigInteger.ONE
+
+        for (i in 1..number) {
+            result = result.multiply(BigInteger.valueOf(i))
+        }
+        return result.toString()
+    }
+
+    override fun onCleared() {
+        coroutineScope.cancel()
+        super.onCleared()
+    }
+
+    //    private suspend fun factorial(number: Long): String {
 //        return suspendCoroutine {
 //            thread {
 //                var result = BigInteger.ONE
@@ -61,3 +70,7 @@ class MainViewModel : ViewModel() {
 //            }
 //        }
 //    }
+
+}
+
+

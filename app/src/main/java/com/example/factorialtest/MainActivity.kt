@@ -1,13 +1,9 @@
 package com.example.factorialtest
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.factorialtest.databinding.ActivityMainBinding
 
@@ -27,29 +23,37 @@ class MainActivity : AppCompatActivity() {
 
         observeViewModel()
 
-        binding.buttonCalculate.setOnClickListener{
+        binding.buttonCalculate.setOnClickListener {
             val text = binding.editTextNumber.text.toString()
             viewModel.calculate(text)
         }
     }
 
     private fun observeViewModel() {
+        binding.progressBarLoading.visibility = View.GONE
+        binding.buttonCalculate.isEnabled = true
 
         viewModel.state.observe(this) {
-            if (it.isError) {
-                Toast.makeText(this, "You did not entered the value", Toast.LENGTH_SHORT).show()
+            when (it) {
+                is Error -> {
+                    Toast.makeText(
+                        this,
+                        "You did not entered the value",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                is Progress -> {
+                    binding.progressBarLoading.visibility = View.VISIBLE
+                    binding.buttonCalculate.isEnabled = false
+                }
+
+                is Result -> {
+                    binding.textViewFactorial.text = it.factorial
+                }
             }
 
-            if (it.isInProgress) {
-                binding.progressBarLoading.visibility = View.VISIBLE
-                binding.buttonCalculate.isEnabled = false
-            } else {
-                binding.progressBarLoading.visibility = View.GONE
-                binding.buttonCalculate.isEnabled = true
-            }
-
-            binding.textViewFactorial.text = it.factorial
         }
-
     }
+
 }
